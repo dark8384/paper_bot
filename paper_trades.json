@@ -1,0 +1,26 @@
+[
+    {
+        "coin": "ESPORTS",
+        "leverage_lock": "5.0x",
+        "execution_plan": "Long Binance / Short Bybit",
+        "binance_entry": 0.034874,
+        "bybit_entry": 0.03488,
+        "binance_sl": 0.033828,
+        "binance_tp": 0.035397,
+        "bybit_sl": 0.035926,
+        "bybit_tp": 0.034357,
+        "initial_funding_gap": "0.2342%"
+    },
+    {
+        "coin": "DEEP",
+        "leverage_lock": "5.0x",
+        "execution_plan": "Long Binance / Short Bybit",
+        "binance_entry": 0.02793,
+        "bybit_entry": 0.02803,
+        "binance_sl": 0.027092,
+        "binance_tp": 0.028349,
+        "bybit_sl": 0.028871,
+        "bybit_tp": 0.02761,
+        "initial_funding_gap": "0.4498%"
+    }
+]
