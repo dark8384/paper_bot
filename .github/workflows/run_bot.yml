@@ -1,0 +1,35 @@
+name: Crypto Arbitrage Engine
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Runs automatically every 15 minutes
+  workflow_dispatch:       # Allows you to trigger manually with 1-click
+
+jobs:
+  run-arbitrage-engine:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Set Up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Missing Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
+
+    - name: Execute Safety Monitor & Entry Scan
+      run: python paper_bot.py
+
+    - name: Commit Updated Ledger State
+      run: |
+        git config --global user.name "ArbitrageBot"
+        git config --global user.email "bot@arbitrage.local"
+        git add paper_trades.json
+        git commit -m "Automated Sync: Updated safety margins and closed flipped legs [skip ci]" || echo "No state changes detected."
+        git push
