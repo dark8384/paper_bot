@@ -1,182 +1,119 @@
 import os
-import sys
 import json
 import requests
-from bs4 import BeautifulSoup
 
-# ==========================================
-# 🛑 TRADING CONFIGURATION & SAFETY PARAMETERS
-# ==========================================
-LEVERAGE = 5.0                # Strict 5x Leverage Lock
-MIN_NET_PROFIT_PCT = 0.04    # Minimum 0.04% Net Profit after Spread
-MAX_SPREAD_PCT = 0.40        # Don't enter if spread is too high
-MIN_FUNDING_GAP = 0.05       # Minimum acceptable funding gap
-SL_PCT_FROM_ENTRY = 0.03     # Safe Price-Based SL at 3% (Way before 5x Liq at ~20%)
-TP_PCT_FROM_ENTRY = 0.015    # Target 1.5% price move or spread normalization
+# 1. Configuration & Constants
+LEDGER_FILE = "paper_trades.json"
+LEVERAGE = 5.0
+FEE_THRESHOLD = 0.0010  # Minimum 0.10% net funding gap to enter
 
-DATA_URL = "https://dark8384.github.io/crypto-arbitrage-bot/"
-LOG_FILE = "paper_trades.json"
-
-def fetch_live_dashboard_data():
-    """Parses live matrix dashboard to find optimized safe pairs like ESPORTS"""
-    try:
-        response = requests.get(DATA_URL, timeout=10)
-        if response.status_code != 200:
-            print("❌ Unable to fetch data from live dashboard.")
+def load_ledger():
+    if os.path.exists(LEDGER_FILE):
+        try:
+            with open(LEDGER_FILE, 'r') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
             return []
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        # In a real setup, this parses the JSON stream or table structure from the dashboard
-        # Simulating parsed safe data extracted live from image_fe15a5.png stream
-        opportunities = [
-            {
-                "coin": "ESPORTS",
-                "binance_price": 0.034874,
-                "bybit_price": 0.034880,
-                "binance_fund": 0.2392,
-                "bybit_fund": 0.0050,
-                "gap": 0.2342,
-                "spread": 0.0178,
-                "est_net_profit": 0.2164,
-                "execution_plan": "Long Binance / Short Bybit",
-                "status": "SAFE"
-            },
-            {
-                "coin": "DEEP",
-                "binance_price": 0.027930,
-                "bybit_price": 0.028030,
-                "binance_fund": 0.0050,
-                "bybit_fund": -0.4448,
-                "gap": 0.4498,
-                "spread": 0.3574,
-                "est_net_profit": 0.0924,
-                "execution_plan": "Long Binance / Short Bybit",
-                "status": "SAFE"
-            }
-        ]
-        return opportunities
-    except Exception as e:
-        print(f"Error fetching dashboard metrics: {e}")
-        return []
+    return []
 
-def check_active_positions_and_safety():
-    """Tracks current active positions and handles auto-kill switches (SL/TP/Funding Flip)"""
-    if not os.path.exists(LOG_FILE):
-        return
-        
-    with open(LOG_FILE, 'r') as f:
-        positions = json.load(f)
-        
-    if not positions:
-        return
+def save_ledger(data):
+    with open(LEDGER_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
 
-    print("🔍 Scanning active legs for Funding Flips and Price-Based Stop-Losses...")
-    updated_positions = []
+def fetch_live_market_data():
+    """
+    Simulating live API data fetch from your tracking matrix stream.
+    In real production, this would call ccxt (Binance/Bybit public endpoints).
+    """
+    # Fallback/Mock Data capturing current volatile candidates
+    return [
+        {
+            "coin": "ESPORTS",
+            "binance_price": 0.04004,
+            "bybit_price": 0.03996,
+            "binance_funding": 0.00259,  # +0.0259%
+            "bybit_funding": 0.00050     # +0.0050%
+        },
+        {
+            "coin": "DEEP",
+            "binance_price": 0.02793,
+            "bybit_price": 0.02803,
+            "binance_funding": 0.004498, # +0.4498%
+            "bybit_funding": 0.00010     # +0.0010%
+        }
+    ]
+
+def scan_and_execute():
+    positions = load_ledger()
+    market_data = fetch_live_market_data()
     
-    # Simulating a live price tick check from the dashboard stream
-    live_opportunities = fetch_live_dashboard_data()
-    live_dict = {op["coin"]: op for op in live_opportunities}
+    updated = False
 
-    for pos in positions:
-        coin = pos["coin"]
-        if coin in live_dict:
-            current_metrics = live_dict[coin]
+    for market in market_data:
+        coin = market["coin"]
+        b_price = market["binance_price"]
+        by_price = market["bybit_price"]
+        b_funding = market["binance_funding"]
+        by_funding = market["bybit_funding"]
+
+        # Double entry check - Skip if this coin is already running
+        if any(p["coin"] == coin for p in positions):
+            continue
+
+        # Calculate Net Funding Spread (Absolute Gap)
+        funding_gap = abs(b_funding - by_funding)
+
+        # Execute only if the spread is juicy enough
+        if funding_gap >= FEE_THRESHOLD:
             
-            # 🛑 CRITICAL SAFETY: FUNDING FLIP AUTO-EXIT DETECTOR
-            # If the funding gap goes negative or flips direction against our active legs
-            if pos["execution_plan"] == "Long Binance / Short Bybit" and current_metrics["binance_fund"] < current_metrics["bybit_fund"]:
-                print(f"🚨 ALERT: Funding Rate flipped against active position on {coin}! Executing emergency auto-exit.")
-                execute_hedge_close(pos, reason="Funding Rate Flip Protection")
-                continue
+            # --- CORRECTED ARBITRAGE DIRECTION LOGIC ---
+            # Rule: Positive funding means Long pays Short. 
+            # We must SHORT the exchange with the HIGHER positive funding rate to RECEIVE the fee.
+            
+            if b_funding > by_funding:
+                # Binance rate is higher -> Short Binance (Receive high fee) / Long Bybit (Pay lower fee)
+                execution_plan = "Short Binance / Long Bybit"
                 
-            if pos["execution_plan"] == "Short Binance / Long Bybit" and current_metrics["bybit_fund"] < current_metrics["binance_fund"]:
-                print(f"🚨 ALERT: Funding Rate flipped against active position on {coin}! Executing emergency auto-exit.")
-                execute_hedge_close(pos, reason="Funding Rate Flip Protection")
-                continue
-
-            # 🛡️ PRICE-BASED STOP-LOSS & TAKE-PROFIT TRACKING
-            # Simulating microsecond execution simulation based on price ticks
-            simulated_current_price = current_metrics["binance_price"]
-            
-            if pos["execution_plan"] == "Long Binance / Short Bybit":
-                # Long leg SL check
-                if simulated_current_price <= pos["binance_sl"]:
-                    print(f"🛑 Stop-Loss triggered on Binance for {coin}! Closing both positions instantly.")
-                    execute_hedge_close(pos, reason="Price Stop-Loss Hit")
-                    continue
-                # Short leg SL check (If price spikes up)
-                elif current_metrics["bybit_price"] >= pos["bybit_sl"]:
-                    print(f"🛑 Stop-Loss triggered on Bybit for {coin}! Closing both positions instantly.")
-                    execute_hedge_close(pos, reason="Price Stop-Loss Hit")
-                    continue
-                # Take-Profit Check
-                elif simulated_current_price >= pos["binance_tp"]:
-                    print(f"🎯 Target Profit reached for {coin}! Locking in gains.")
-                    execute_hedge_close(pos, reason="Take Profit Target Hit")
-                    continue
-                    
-            updated_positions.append(pos)
-            
-    with open(LOG_FILE, 'w') as f:
-        json.dump(updated_positions, f, indent=4)
-
-def execute_hedge_close(position, reason):
-    print(f"🔒 [CLOSED] Both exchanges cleared for {position['coin']}. Reason: {reason}")
-
-def scan_and_execute_trades():
-    """Scans for high net-profit, low-spread entries matching 5x parameters"""
-    opportunities = fetch_live_dashboard_data()
-    
-    for op in opportunities:
-        if op["status"] == "SAFE" and op["est_net_profit"] >= MIN_NET_PROFIT_PCT and op["spread"] <= MAX_SPREAD_PCT:
-            print(f"\n💎 Perfect Candidate Found: {op['coin']}")
-            print(f"📊 Net Profit Potential: +{op['est_net_profit']}% | Current Spread: {op['spread']}%")
-            
-            # Calculate automatic price-based targets based on entry values
-            b_price = op["binance_price"]
-            by_price = op["bybit_price"]
-            
-            if op["execution_plan"] == "Long Binance / Short Bybit":
-                b_sl = b_price * (1.0 - SL_PCT_FROM_ENTRY)
-                b_tp = b_price * (1.0 + TP_PCT_FROM_ENTRY)
-                by_sl = by_price * (1.0 + SL_PCT_FROM_ENTRY)
-                by_tp = by_price * (1.0 - TP_PCT_FROM_ENTRY)
+                # Setup Mathematical SL/TP based on 5x Leverage safety margins
+                binance_sl = round(b_price * 1.03, 6)  # Short SL (If price spikes 3%)
+                binance_tp = round(b_price * 0.95, 6)  # Short TP (If price drops 5%)
+                
+                bybit_sl = round(by_price * 0.97, 6)   # Long SL (If price drops 3%)
+                bybit_tp = round(by_price * 1.05, 6)   # Long TP (If price spikes 5%)
             else:
-                b_sl = b_price * (1.0 + SL_PCT_FROM_ENTRY)
-                b_tp = b_price * (1.0 - TP_PCT_FROM_ENTRY)
-                by_sl = by_price * (1.0 - SL_PCT_FROM_ENTRY)
-                by_tp = by_price * (1.0 + TP_PCT_FROM_ENTRY)
+                # Bybit rate is higher -> Short Bybit (Receive high fee) / Long Binance (Pay lower fee)
+                execution_plan = "Long Binance / Short Bybit"
+                
+                binance_sl = round(b_price * 0.97, 6)  # Long SL
+                binance_tp = round(b_price * 1.05, 6)  # Long TP
+                
+                bybit_sl = round(by_price * 1.03, 6)   # Short SL
+                bybit_tp = round(by_price * 0.95, 6)   # Short TP
 
+            # Constructing the safe simulation log
             trade_log = {
-                "coin": op["coin"],
+                "coin": coin,
                 "leverage_lock": f"{LEVERAGE}x",
-                "execution_plan": op["execution_plan"],
+                "execution_plan": execution_plan,
                 "binance_entry": b_price,
                 "bybit_entry": by_price,
-                "binance_sl": round(b_sl, 6),
-                "binance_tp": round(b_tp, 6),
-                "bybit_sl": round(by_sl, 6),
-                "bybit_tp": round(by_tp, 6),
-                "initial_funding_gap": f"{op['gap']}%"
+                "binance_sl": binance_sl,
+                "binance_tp": binance_tp,
+                "bybit_sl": bybit_sl,
+                "bybit_tp": bybit_tp,
+                "initial_funding_gap": f"{round(funding_gap * 100, 4)}%"
             }
-            
-            print(f"🚀 Initializing Position with locked {LEVERAGE}x Leverage...")
-            print(f"🔒 Binance SL: {trade_log['binance_sl']} | Bybit SL: {trade_log['bybit_sl']}")
-            
-            # Save transaction state to log file
-            positions = []
-            if os.path.exists(LOG_FILE):
-                with open(LOG_FILE, 'r') as f:
-                    try: positions = json.load(f)
-                    except: positions = []
-            
-            # Prevent double entry
-            if not any(p["coin"] == op["coin"] for p in positions):
-                positions.append(trade_log)
-                with open(LOG_FILE, 'w') as f:
-                    json.dump(positions, f, indent=4)
-                print(f"✅ Successfully hedged trade logged in {LOG_FILE}.")
+
+            positions.append(trade_log)
+            print(f"🔥 Perfect Funding Arbitrage Found for {coin}!")
+            print(f"📋 Strategy: {execution_plan} | Gap: {round(funding_gap * 100, 4)}%")
+            updated = True
+
+    if updated:
+        save_ledger(positions)
+        print("✅ Paper trades successfully locked in ledger state.")
+    else:
+        print("😴 No new directional gaps found or positions already occupied.")
 
 if __name__ == "__main__":
-    check_active_positions_and_safety()
-    scan_and_execute_trades()
+    scan_and_execute()
