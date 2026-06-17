@@ -1,8 +1,54 @@
 {
     "wallet": {
-        "balance_usdt": 1000.0,
+        "balance_usdt": 0.0,
         "initial_capital": 1000.0
     },
-    "active_positions": [],
+    "active_positions": [
+        {
+            "coin": "DEEP",
+            "execution_plan": "Long Binance / Short Bybit",
+            "binance_funding": "-0.27%",
+            "bybit_funding": "0.1%",
+            "binance_entry": 0.01931,
+            "bybit_entry": 0.0193,
+            "initial_funding_gap": "0.37%"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Short Binance / Long Bybit",
+            "binance_funding": "0.259%",
+            "bybit_funding": "0.05%",
+            "binance_entry": 0.04004,
+            "bybit_entry": 0.03996,
+            "initial_funding_gap": "0.209%"
+        },
+        {
+            "coin": "POL",
+            "execution_plan": "Long Binance / Short Bybit",
+            "binance_funding": "-0.05%",
+            "bybit_funding": "0.06%",
+            "binance_entry": 0.385,
+            "bybit_entry": 0.386,
+            "initial_funding_gap": "0.11%"
+        },
+        {
+            "coin": "1INCH",
+            "execution_plan": "Short Binance / Long Bybit",
+            "binance_funding": "0.15%",
+            "bybit_funding": "-0.05%",
+            "binance_entry": 0.291,
+            "bybit_entry": 0.29,
+            "initial_funding_gap": "0.2%"
+        },
+        {
+            "coin": "HMSTR",
+            "execution_plan": "Short Binance / Long Bybit",
+            "binance_funding": "0.22%",
+            "bybit_funding": "0.01%",
+            "binance_entry": 0.0041,
+            "bybit_entry": 0.0042,
+            "initial_funding_gap": "0.21%"
+        }
+    ],
     "closed_trades": []
 }
