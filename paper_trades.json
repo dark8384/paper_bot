@@ -11,7 +11,8 @@
             "bybit_funding": "0.1%",
             "binance_entry": 0.01931,
             "bybit_entry": 0.0193,
-            "initial_funding_gap": "0.37%"
+            "initial_funding_gap": "0.37%",
+            "live_pnl": "$0.0"
         },
         {
             "coin": "ESPORTS",
@@ -20,7 +21,8 @@
             "bybit_funding": "0.05%",
             "binance_entry": 0.04004,
             "bybit_entry": 0.03996,
-            "initial_funding_gap": "0.209%"
+            "initial_funding_gap": "0.209%",
+            "live_pnl": "$0.0"
         },
         {
             "coin": "POL",
@@ -29,7 +31,8 @@
             "bybit_funding": "0.06%",
             "binance_entry": 0.385,
             "bybit_entry": 0.386,
-            "initial_funding_gap": "0.11%"
+            "initial_funding_gap": "0.11%",
+            "live_pnl": "$0.0"
         },
         {
             "coin": "1INCH",
@@ -38,7 +41,8 @@
             "bybit_funding": "-0.05%",
             "binance_entry": 0.291,
             "bybit_entry": 0.29,
-            "initial_funding_gap": "0.2%"
+            "initial_funding_gap": "0.2%",
+            "live_pnl": "$0.0"
         },
         {
             "coin": "HMSTR",
@@ -47,7 +51,8 @@
             "bybit_funding": "0.01%",
             "binance_entry": 0.0041,
             "bybit_entry": 0.0042,
-            "initial_funding_gap": "0.21%"
+            "initial_funding_gap": "0.21%",
+            "live_pnl": "$0.0"
         }
     ],
     "closed_trades": []
