@@ -4,8 +4,8 @@ import requests
 
 LEDGER_FILE = "paper_trades.json"
 LEVERAGE = 5.0
-TRADE_MARGIN_PER_EXCHANGE = 100.0
-FEE_THRESHOLD = 0.0005  # Minimum 0.05% net funding gap
+TRADE_MARGIN_PER_EXCHANGE = 100.0  # $100 Binance + $100 Bybit = $200 per trade
+FEE_THRESHOLD = 0.0005  
 COINS_TO_SCAN = ["DEEP", "ESPORTS", "POL", "1INCH", "HMSTR", "CATI", "RENDER"]
 
 def load_ledger():
@@ -25,12 +25,7 @@ def save_ledger(data):
         json.dump(data, f, indent=4)
 
 def fetch_real_live_data():
-    """
-    Bulletproof cloud-agnostic aggregator endpoint to bypass exchange IP-blocking.
-    """
     market_matrix = []
-    
-    # Pre-calculated dynamic stream fallback to keep positions live if global APIs block GitHub IPs
     backup_matrix = {
         "DEEP": {"bp": 0.01931, "yp": 0.01930, "bf": -0.0027, "yf": 0.0010},
         "ESPORTS": {"bp": 0.04004, "yp": 0.03996, "bf": 0.00259, "yf": 0.0005},
@@ -42,7 +37,6 @@ def fetch_real_live_data():
     }
 
     try:
-        # Fetching directly from the raw data aggregator node
         response = requests.get("https://api.coingecko.com/api/v3/derivatives", timeout=12)
         if response.status_code == 200:
             data = response.json()
@@ -54,7 +48,6 @@ def fetch_real_live_data():
                         price = float(item.get("index_price", 0))
                         funding = float(item.get("funding_rate", 0))
                         if price > 0:
-                            # Safely split spreads across standard matrix rules
                             backup_matrix[symbol] = {
                                 "bp": price,
                                 "yp": price * 0.999,
@@ -79,12 +72,12 @@ def fetch_real_live_data():
 def manage_and_scan():
     ledger = load_ledger()
     market_data = fetch_real_live_data()
-    updated = False
+    updated = True  # Always save to update live real-time PnL states
     
-    # --- PHASE 1: PERFORMANCE TRACKER & CLOSURE DISCIPLINE ---
     live_prices = {m["coin"]: (m["binance_price"], m["bybit_price"]) for m in market_data}
     still_active = []
     
+    # --- PHASE 1: EVALUATE LIVE RUNNING TRADES PnL ---
     for pos in ledger["active_positions"]:
         coin = pos["coin"]
         if coin not in live_prices:
@@ -101,19 +94,20 @@ def manage_and_scan():
             by_pnl = (pos["bybit_entry"] - by_current) / pos["bybit_entry"] * TRADE_MARGIN_PER_EXCHANGE * LEVERAGE
             
         total_pnl = round(b_pnl + by_pnl, 2)
+        pos["live_pnl"] = f"${total_pnl}"  # Injecting dynamic string into array
         
+        # Guardrail check
         if total_pnl >= 10.0 or total_pnl <= -6.0:
             ledger["wallet"]["balance_usdt"] = round(ledger["wallet"]["balance_usdt"] + total_pnl + (TRADE_MARGIN_PER_EXCHANGE * 2), 2)
             pos["exit_pnl"] = f"${total_pnl}"
             pos["status"] = "🎯 TP Hit" if total_pnl >= 10.0 else "🚨 SL Hit"
             ledger["closed_trades"].append(pos)
-            updated = True
         else:
             still_active.append(pos)
             
     ledger["active_positions"] = still_active
 
-    # --- PHASE 2: SCAN AND EXECUTE NEW SUPERIOR GAPS ---
+    # --- PHASE 2: OPEN NEW ENTRIES ---
     active_coins = [p["coin"] for p in ledger["active_positions"]]
     
     for market in market_data:
@@ -129,8 +123,7 @@ def manage_and_scan():
         
         if funding_gap >= FEE_THRESHOLD:
             if ledger["wallet"]["balance_usdt"] < (TRADE_MARGIN_PER_EXCHANGE * 2):
-                print("⚠️ Virtual Funds low! Skipping new opportunity.")
-                break
+                continue
                 
             ledger["wallet"]["balance_usdt"] = round(ledger["wallet"]["balance_usdt"] - (TRADE_MARGIN_PER_EXCHANGE * 2), 2)
             execution_plan = "Short Binance / Long Bybit" if b_funding > by_funding else "Long Binance / Short Bybit"
@@ -138,6 +131,8 @@ def manage_and_scan():
             trade_log = {
                 "coin": coin,
                 "execution_plan": execution_plan,
+                "used_margin": f"${TRADE_MARGIN_PER_EXCHANGE * 2} USDT",  # Tracks exact capital allocation
+                "live_pnl": "$0.00",
                 "binance_funding": f"{round(b_funding * 100, 4)}%",
                 "bybit_funding": f"{round(by_funding * 100, 4)}%",
                 "binance_entry": b_price,
@@ -146,13 +141,8 @@ def manage_and_scan():
             }
             
             ledger["active_positions"].append(trade_log)
-            print(f"🚀 Paper Position Opened for {coin} | Gap: {round(funding_gap * 100, 4)}%")
-            updated = True
             
-    if updated:
-        save_ledger(ledger)
-    else:
-        print("⚡ Scan complete. No unqualified gaps found over threshold.")
+    save_ledger(ledger)
 
 if __name__ == "__main__":
     manage_and_scan()
