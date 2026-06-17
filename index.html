@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Arbitrage Paper Trading Desk</title>
+    <title>Live Arbitrage Virtual Trading Desk</title>
     <style>
         body { background-color: #0d0e12; color: #ffffff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
         h1 { text-align: center; color: #00ff87; letter-spacing: 1px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: #161a23; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #242b3d; }
@@ -30,7 +30,7 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>Virtual Balance</h3>
+            <h3>Available Virtual Balance</h3>
             <p class="green-text" id="wallet-balance">$1000.00 USDT</p>
         </div>
         <div class="stat-card">
@@ -42,26 +42,26 @@
             <p id="active-count" class="amber-text">0</p>
         </div>
         <div class="stat-card">
-            <h3>Leverage Filter</h3>
+            <h3>System Risk Guard</h3>
             <p class="red-text">5.0x Strict</p>
         </div>
     </div>
 
-    <h2>📊 Running Hedged Positions</h2>
+    <h2>📊 Running Hedged Positions (Real-time PnL Desk)</h2>
     <table>
         <thead>
             <tr>
                 <th>Coin</th>
                 <th>Plan</th>
-                <th>Binance Funding</th>
-                <th>Bybit Funding</th>
-                <th>Binance Entry</th>
-                <th>Bybit Entry</th>
+                <th>Used Capital</th>
+                <th>Binance Funding / Entry</th>
+                <th>Bybit Funding / Entry</th>
                 <th>Net Spread</th>
+                <th>Live Floating PnL</th>
             </tr>
         </thead>
         <tbody id="active-table">
-            <tr><td colspan="7" class="no-data">Scanning for real live pricing matrix...</td></tr>
+            <tr><td colspan="7" class="no-data">Processing live tracker data rows...</td></tr>
         </tbody>
     </table>
 
@@ -92,31 +92,34 @@
             document.getElementById('wallet-balance').innerText = `$${data.wallet.balance_usdt} USDT`;
             document.getElementById('active-count').innerText = data.active_positions.length;
             
-            // Render Active Positions
             const activeTable = document.getElementById('active-table');
             activeTable.innerHTML = '';
+            
             if(data.active_positions.length === 0) {
-                activeTable.innerHTML = `<tr><td colspan="7" class="no-data">😴 Gaps ke liye live scan chal raha hai. Kisi real asset me clear gap nahi mila...</td></tr>`;
+                activeTable.innerHTML = `<tr><td colspan="7" class="no-data">😴 Safe margin entries ki scanning chal rahi hai...</td></tr>`;
             } else {
                 data.active_positions.forEach(p => {
+                    const margin = p.used_margin ? p.used_margin : "$200.00 USDT";
+                    const pnlVal = p.live_pnl ? p.live_pnl : "$0.00";
+                    const pnlColor = pnlVal.includes('-') ? '#ff4d4d' : '#00ff87';
+                    
                     activeTable.innerHTML += `
                         <tr>
                             <td><span class="badge">${p.coin}</span></td>
-                            <td style="color:#00ff87; font-weight:bold;">${p.execution_plan}</td>
-                            <td>${p.binance_funding}</td>
-                            <td>${p.bybit_funding}</td>
-                            <td>$${p.binance_entry}</td>
-                            <td>$${p.bybit_entry}</td>
+                            <td style="color:#00ff87; font-weight:bold; font-size:13px;">${p.execution_plan}</td>
+                            <td style="font-weight:bold; color:#7f8fa4;">${margin}</td>
+                            <td><div style="font-size:11px; color:#ffb703;">${p.binance_funding}</div><b>$${p.binance_entry}</b></td>
+                            <td><div style="font-size:11px; color:#ffb703;">${p.bybit_funding}</div><b>$${p.bybit_entry}</b></td>
                             <td class="amber-text" style="font-family:monospace; font-weight:bold;">${p.initial_funding_gap}</td>
+                            <td style="color:${pnlColor}; font-weight:bold; font-family:monospace; font-size:16px;">${pnlVal}</td>
                         </tr>`;
                 });
             }
 
-            // Render History
             const historyTable = document.getElementById('history-table');
             historyTable.innerHTML = '';
             if(data.closed_trades.length === 0) {
-                historyTable.innerHTML = `<tr><td colspan="6" class="no-data">Abhi tak koi trade hit nahi hua hai.</td></tr>`;
+                historyTable.innerHTML = `<tr><td colspan="6" class="no-data">Abhi tak koi targets ya trailing SL close nahi hue.</td></tr>`;
             } else {
                 data.closed_trades.forEach(h => {
                     const color = h.exit_pnl.includes('-') ? '#ff4d4d' : '#00ff87';
