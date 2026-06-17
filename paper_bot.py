@@ -4,114 +4,163 @@ import requests
 
 LEDGER_FILE = "paper_trades.json"
 LEVERAGE = 5.0
-FEE_THRESHOLD = 0.0010  # Minimum 0.10% net funding gap to execute
+TRADE_MARGIN_PER_EXCHANGE = 100.0  # Har trade me $100 Binance + $100 Bybit lagega
+FEE_THRESHOLD = 0.0005  # Minimum 0.05% net funding gap to qualify for live test
+COINS_TO_SCAN = ["DEEP", "ESPORTS", "POL", "1INCH", "HMSTR", "CATI", "RENDER"]
 
 def load_ledger():
+    default_structure = {"wallet": {"balance_usdt": 1000.0, "initial_capital": 1000.0}, "active_positions": [], "closed_trades": []}
     if os.path.exists(LEDGER_FILE):
         try:
             with open(LEDGER_FILE, 'r') as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            return []
-    return []
+                data = json.load(f)
+                if "wallet" not in data: return default_structure
+                return data
+        except Exception:
+            return default_structure
+    return default_structure
 
 def save_ledger(data):
     with open(LEDGER_FILE, 'w') as f:
         json.dump(data, f, indent=4)
 
-def fetch_real_market_data():
+def fetch_real_live_data():
     """
-    Bulletproof multi-coin fetcher. Strict dictionary data parsing validation.
+    Fetches 100% real-time spot/perpetual prices and live funding rates directly from exchange public APIs.
     """
-    # Hardcoded fallback array mapping actual current volatile tokens safely
-    backup_data = [
-        {"coin": "SPYX", "binance_price": 750.34, "bybit_price": 750.68, "binance_funding": -0.0050, "bybit_funding": 0.0120},
-        {"coin": "BARDUS", "binance_price": 0.1815, "bybit_price": 0.1818, "binance_funding": 0.0250, "bybit_funding": -0.0010},
-        {"coin": "ESPORTS", "binance_price": 0.04004, "bybit_price": 0.03996, "binance_funding": 0.00259, "bybit_funding": 0.00050},
-        {"coin": "DEEP", "binance_price": 0.01931, "bybit_price": 0.01930, "binance_funding": -0.0027, "bybit_funding": 0.0010}
-    ]
+    market_matrix = []
     
+    # 1. Fetch Binance Live Data
+    binance_prices = {}
+    binance_funding = {}
     try:
-        # Hooking the core live tracking dashboard source directly
-        response = requests.get("https://raw.githubusercontent.com/dark8384/crypto-arbitrage-bot/main/data.json", timeout=10)
-        
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                # Strict structure sanity check to completely avoid 'string indices' type error
-                if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
-                    return data
-            except (json.JSONDecodeError, TypeError):
-                pass
-        return backup_data
-    except Exception:
-        return backup_data
+        b_p_res = requests.get("https://fapi.binance.com/fapi/v1/ticker/price", timeout=10).json()
+        for item in b_p_res:
+            symbol = item['symbol']
+            if symbol.endswith("USDT"):
+                binance_prices[symbol.replace("USDT", "")] = float(item['price'])
+                
+        b_f_res = requests.get("https://fapi.binance.com/fapi/v1/premiumIndex", timeout=10).json()
+        for item in b_f_res:
+            symbol = item['symbol']
+            if symbol.endswith("USDT"):
+                binance_funding[symbol.replace("USDT", "")] = float(item['lastFundingRate'])
+    except Exception as e:
+        print(f"Binance Live Stream Error: {e}")
 
-def scan_and_execute():
-    positions = load_ledger()
-    market_data = fetch_real_market_data()
+    # 2. Fetch Bybit Live Data
+    bybit_prices = {}
+    bybit_funding = {}
+    try:
+        by_res = requests.get("https://api.bybit.com/v5/market/tickers?category=linear", timeout=10).json()
+        if by_res.get("retCode") == 0:
+            for item in by_res['result']['list']:
+                symbol = item['symbol']
+                if symbol.endswith("USDT"):
+                    coin = symbol.replace("USDT", "")
+                    bybit_prices[coin] = float(item['lastPrice'])
+                    bybit_funding[coin] = float(item['fundingRate'])
+    except Exception as e:
+        print(f"Bybit Live Stream Error: {e}")
+
+    # 3. Consolidate Matrix
+    for coin in COINS_TO_SCAN:
+        if coin in binance_prices and coin in bybit_prices and coin in binance_funding and coin in bybit_funding:
+            market_matrix.append({
+                "coin": coin,
+                "binance_price": binance_prices[coin],
+                "bybit_price": bybit_prices[coin],
+                "binance_funding": binance_funding[coin],
+                "bybit_funding": bybit_funding[coin]
+            })
+            
+    return market_matrix
+
+def manage_and_scan():
+    ledger = load_ledger()
+    market_data = fetch_real_live_data()
     
     updated = False
-    active_coins = [p["coin"] for p in positions if isinstance(p, dict) and "coin" in p]
-
-    # Clean Dictionary-Only Scanning Engine
-    for market in market_data:
-        # Extra defensive check: skip if row is broken or not a dictionary
-        if not isinstance(market, dict) or "coin" not in market:
+    
+    # --- PHASE 1: UPDATE LIVE PnL & MONITOR TP/SL CLOSURES ---
+    live_prices = {m["coin"]: (m["binance_price"], m["bybit_price"]) for m in market_data}
+    still_active = []
+    
+    for pos in ledger["active_positions"]:
+        coin = pos["coin"]
+        if coin not in live_prices:
+            still_active.append(pos)
             continue
             
-        try:
-            coin = market["coin"]
-            b_price = float(market["binance_price"])
-            by_price = float(market["bybit_price"])
-            b_funding = float(market["binance_funding"])
-            by_funding = float(market["bybit_funding"])
-        except (KeyError, ValueError, TypeError):
-            continue  # Skip corrupt individual tokens safely without crashing the run
+        b_current, by_current = live_prices[coin]
+        
+        # Calculate individual leg returns based on plan direction
+        if "Short Binance" in pos["execution_plan"]:
+            b_pnl = (pos["binance_entry"] - b_current) / pos["binance_entry"] * TRADE_MARGIN_PER_EXCHANGE * LEVERAGE
+            by_pnl = (by_current - pos["bybit_entry"]) / pos["bybit_entry"] * TRADE_MARGIN_PER_EXCHANGE * LEVERAGE
+        else:
+            b_pnl = (b_current - pos["binance_entry"]) / pos["binance_entry"] * TRADE_MARGIN_PER_EXCHANGE * LEVERAGE
+            by_pnl = (pos["bybit_entry"] - by_current) / pos["bybit_entry"] * TRADE_MARGIN_PER_EXCHANGE * LEVERAGE
+            
+        total_pnl = round(b_pnl + by_pnl, 2)
+        
+        # Check Stop-Loss or Take-Profit Triggers (Combined Leg Guardrail)
+        if total_pnl >= 10.0 or total_pnl <= -6.0:  # TP at +$10, SL at -$6
+            ledger["wallet"]["balance_usdt"] = round(ledger["wallet"]["balance_usdt"] + total_pnl, 2)
+            pos["exit_pnl"] = f"${total_pnl}"
+            pos["status"] = "🎯 TP Hit" if total_pnl >= 10.0 else "🚨 SL Hit"
+            ledger["closed_trades"].append(pos)
+            updated = True
+            print(f"🔒 Position Closed for {coin}! PnL: ${total_pnl}")
+        else:
+            still_active.append(pos)
+            
+    ledger["active_positions"] = still_active
 
-        if coin in active_coins:
-            continue
-
+    # --- PHASE 2: SCAN FOR NEW REAL-TIME ENTRIES ---
+    active_coins = [p["coin"] for p in ledger["active_positions"]]
+    
+    for market in market_data:
+        coin = market["coin"]
+        if coin in active_coins: continue
+        
+        b_price = market["binance_price"]
+        by_price = market["bybit_price"]
+        b_funding = market["binance_funding"]
+        by_funding = market["bybit_funding"]
+        
         funding_gap = abs(b_funding - by_funding)
-
-        # Qualification Check
+        
         if funding_gap >= FEE_THRESHOLD:
-            # Flipped direction logic based on premium rates
+            # Check wallet limits
+            if ledger["wallet"]["balance_usdt"] < (TRADE_MARGIN_PER_EXCHANGE * 2):
+                print("⚠️ Virtual Funds low! Skipping new opportunity.")
+                break
+                
+            # Allocate Margin
+            ledger["wallet"]["balance_usdt"] = round(ledger["wallet"]["balance_usdt"] - (TRADE_MARGIN_PER_EXCHANGE * 2), 2)
+            
             if b_funding > by_funding:
                 execution_plan = "Short Binance / Long Bybit"
-                binance_sl = round(b_price * 1.03, 6)
-                binance_tp = round(b_price * 0.95, 6)
-                bybit_sl = round(by_price * 0.97, 6)
-                bybit_tp = round(by_price * 1.05, 6)
             else:
                 execution_plan = "Long Binance / Short Bybit"
-                binance_sl = round(b_price * 0.97, 6)
-                binance_tp = round(b_price * 1.05, 6)
-                bybit_sl = round(by_price * 1.03, 6)
-                bybit_tp = round(by_price * 0.95, 6)
-
+                
             trade_log = {
                 "coin": coin,
-                "leverage_lock": f"{LEVERAGE}x",
                 "execution_plan": execution_plan,
+                "binance_funding": f"{round(b_funding * 100, 4)}%",
+                "bybit_funding": f"{round(by_funding * 100, 4)}%",
                 "binance_entry": b_price,
                 "bybit_entry": by_price,
-                "binance_sl": binance_sl,
-                "binance_tp": binance_tp,
-                "bybit_sl": bybit_sl,
-                "bybit_tp": bybit_tp,
                 "initial_funding_gap": f"{round(funding_gap * 100, 4)}%"
             }
-
-            positions.append(trade_log)
-            print(f"🚀 Captured superior multi-coin gap! Asset: {coin} | Gap: {round(funding_gap * 100, 4)}%")
+            
+            ledger["active_positions"].append(trade_log)
+            print(f"🚀 Real Live Trade Entered! {coin} | Gap: {round(funding_gap * 100, 4)}%")
             updated = True
-
+            
     if updated:
-        save_ledger(positions)
-        print("✅ Paper trade ledger successfully updated.")
-    else:
-        print("😴 Scanning completed. No new unqualified spreads available at this interval.")
+        save_ledger(ledger)
 
 if __name__ == "__main__":
-    scan_and_execute()
+    manage_and_scan()
