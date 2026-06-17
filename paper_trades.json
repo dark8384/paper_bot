@@ -1,50 +1,8 @@
-[
-    {
-        "coin": "SPYX",
-        "leverage_lock": "5.0x",
-        "execution_plan": "Long Binance / Short Bybit",
-        "binance_entry": 750.34,
-        "bybit_entry": 750.68,
-        "binance_sl": 727.8298,
-        "binance_tp": 787.857,
-        "bybit_sl": 773.2004,
-        "bybit_tp": 713.146,
-        "initial_funding_gap": "1.7%"
+{
+    "wallet": {
+        "balance_usdt": 1000.0,
+        "initial_capital": 1000.0
     },
-    {
-        "coin": "BARDUS",
-        "leverage_lock": "5.0x",
-        "execution_plan": "Short Binance / Long Bybit",
-        "binance_entry": 0.1815,
-        "bybit_entry": 0.1818,
-        "binance_sl": 0.186945,
-        "binance_tp": 0.172425,
-        "bybit_sl": 0.176346,
-        "bybit_tp": 0.19089,
-        "initial_funding_gap": "2.6%"
-    },
-    {
-        "coin": "ESPORTS",
-        "leverage_lock": "5.0x",
-        "execution_plan": "Short Binance / Long Bybit",
-        "binance_entry": 0.04004,
-        "bybit_entry": 0.03996,
-        "binance_sl": 0.041241,
-        "binance_tp": 0.038038,
-        "bybit_sl": 0.038761,
-        "bybit_tp": 0.041958,
-        "initial_funding_gap": "0.209%"
-    },
-    {
-        "coin": "DEEP",
-        "leverage_lock": "5.0x",
-        "execution_plan": "Long Binance / Short Bybit",
-        "binance_entry": 0.01931,
-        "bybit_entry": 0.0193,
-        "binance_sl": 0.018731,
-        "binance_tp": 0.020276,
-        "bybit_sl": 0.019879,
-        "bybit_tp": 0.018335,
-        "initial_funding_gap": "0.37%"
-    }
-]
+    "active_positions": [],
+    "closed_trades": []
+}
