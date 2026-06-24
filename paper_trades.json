@@ -1,59 +1,92 @@
 {
     "wallet": {
-        "balance_usdt": 0.0,
+        "balance_usdt": 194.36,
         "initial_capital": 1000.0
     },
     "active_positions": [
         {
-            "coin": "DEEP",
-            "execution_plan": "Long Binance / Short Bybit",
-            "binance_funding": "-0.27%",
-            "bybit_funding": "0.1%",
-            "binance_entry": 0.01931,
-            "bybit_entry": 0.0193,
-            "initial_funding_gap": "0.37%",
-            "live_pnl": "$0.0"
-        },
-        {
-            "coin": "ESPORTS",
-            "execution_plan": "Short Binance / Long Bybit",
-            "binance_funding": "0.259%",
-            "bybit_funding": "0.05%",
-            "binance_entry": 0.04004,
-            "bybit_entry": 0.03996,
-            "initial_funding_gap": "0.209%",
-            "live_pnl": "$0.0"
-        },
-        {
             "coin": "POL",
             "execution_plan": "Long Binance / Short Bybit",
-            "binance_funding": "-0.05%",
-            "bybit_funding": "0.06%",
+            "binance_funding": "-0.209%",
+            "bybit_funding": "0.284%",
             "binance_entry": 0.385,
             "bybit_entry": 0.386,
             "initial_funding_gap": "0.11%",
-            "live_pnl": "$0.0"
+            "live_pnl": "$4.37"
         },
         {
             "coin": "1INCH",
             "execution_plan": "Short Binance / Long Bybit",
-            "binance_funding": "0.15%",
-            "bybit_funding": "-0.05%",
+            "binance_funding": "0.126%",
+            "bybit_funding": "-0.159%",
             "binance_entry": 0.291,
             "bybit_entry": 0.29,
             "initial_funding_gap": "0.2%",
-            "live_pnl": "$0.0"
+            "live_pnl": "$7.9"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$0.00",
+            "binance_funding": "0.048%",
+            "bybit_funding": "0.183%",
+            "binance_entry": 0.03948,
+            "bybit_entry": 0.04052,
+            "initial_funding_gap": "0.135%"
+        },
+        {
+            "coin": "HMSTR",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$0.00",
+            "binance_funding": "-0.155%",
+            "bybit_funding": "0.171%",
+            "binance_entry": 0.00414,
+            "bybit_entry": 0.00415,
+            "initial_funding_gap": "0.326%"
+        }
+    ],
+    "closed_trades": [
+        {
+            "coin": "DEEP",
+            "execution_plan": "Long Binance / Short Bybit",
+            "binance_funding": "0.116%",
+            "bybit_funding": "0.086%",
+            "binance_entry": 0.01931,
+            "bybit_entry": 0.0193,
+            "initial_funding_gap": "0.37%",
+            "live_pnl": "$-8.81",
+            "exit_pnl": "$-8.81",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Short Binance / Long Bybit",
+            "binance_funding": "0.048%",
+            "bybit_funding": "0.183%",
+            "binance_entry": 0.04004,
+            "bybit_entry": 0.03996,
+            "initial_funding_gap": "0.209%",
+            "live_pnl": "$14.0",
+            "exit_pnl": "$14.0",
+            "status": "\ud83c\udfaf TP Hit"
         },
         {
             "coin": "HMSTR",
             "execution_plan": "Short Binance / Long Bybit",
-            "binance_funding": "0.22%",
-            "bybit_funding": "0.01%",
+            "binance_funding": "-0.155%",
+            "bybit_funding": "0.171%",
             "binance_entry": 0.0041,
             "bybit_entry": 0.0042,
             "initial_funding_gap": "0.21%",
-            "live_pnl": "$0.0"
+            "live_pnl": "$-10.83",
+            "exit_pnl": "$-10.83",
+            "status": "\ud83d\udea8 SL Hit"
         }
-    ],
-    "closed_trades": []
+    ]
 }
