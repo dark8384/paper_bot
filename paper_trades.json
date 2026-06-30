@@ -1,6 +1,6 @@
 {
     "wallet": {
-        "balance_usdt": 130.96,
+        "balance_usdt": 126.46,
         "initial_capital": 1000.0
     },
     "active_positions": [
@@ -10,25 +10,12 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$0.00",
-            "binance_funding": "-0.013%",
-            "bybit_funding": "-0.068%",
+            "live_pnl": "$3.89",
+            "binance_funding": "-0.148%",
+            "bybit_funding": "0.289%",
             "binance_entry": 0.0405,
             "bybit_entry": 0.04002,
             "initial_funding_gap": "0.055%"
-        },
-        {
-            "coin": "POL",
-            "execution_plan": "Long Binance / Short Bybit",
-            "used_margin": "$200.0 USDT",
-            "leverage": "5.0x",
-            "total_size": "$1000.0 USDT",
-            "live_pnl": "$0.00",
-            "binance_funding": "0.001%",
-            "bybit_funding": "0.091%",
-            "binance_entry": 0.38158,
-            "bybit_entry": 0.3796,
-            "initial_funding_gap": "0.091%"
         },
         {
             "coin": "1INCH",
@@ -36,12 +23,25 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$0.00",
-            "binance_funding": "0.2%",
-            "bybit_funding": "-0.271%",
+            "live_pnl": "$5.06",
+            "binance_funding": "-0.201%",
+            "bybit_funding": "-0.039%",
             "binance_entry": 0.29503,
             "bybit_entry": 0.28941,
             "initial_funding_gap": "0.472%"
+        },
+        {
+            "coin": "DEEP",
+            "execution_plan": "Short Binance / Long Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$0.00",
+            "binance_funding": "0.025%",
+            "bybit_funding": "-0.141%",
+            "binance_entry": 0.01908,
+            "bybit_entry": 0.01904,
+            "initial_funding_gap": "0.166%"
         }
     ],
     "closed_trades": [
@@ -1918,6 +1918,21 @@
             "bybit_entry": 0.04048,
             "initial_funding_gap": "0.437%",
             "exit_pnl": "$-9.54",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "POL",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-4.5",
+            "binance_funding": "0.28%",
+            "bybit_funding": "-0.284%",
+            "binance_entry": 0.38158,
+            "bybit_entry": 0.3796,
+            "initial_funding_gap": "0.091%",
+            "exit_pnl": "$-4.5",
             "status": "\ud83d\udea8 SL Hit"
         }
     ]
