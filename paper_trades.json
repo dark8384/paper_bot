@@ -1,21 +1,21 @@
 {
     "wallet": {
-        "balance_usdt": 80.89,
+        "balance_usdt": 63.07,
         "initial_capital": 1000.0
     },
     "active_positions": [
         {
             "coin": "ESPORTS",
-            "execution_plan": "Long Binance / Short Bybit",
+            "execution_plan": "Short Binance / Long Bybit",
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
             "live_pnl": "$0.00",
-            "binance_funding": "0.077%",
-            "bybit_funding": "0.169%",
-            "binance_entry": 0.03982,
-            "bybit_entry": 0.03954,
-            "initial_funding_gap": "0.092%"
+            "binance_funding": "0.283%",
+            "bybit_funding": "0.097%",
+            "binance_entry": 0.03971,
+            "bybit_entry": 0.04042,
+            "initial_funding_gap": "0.185%"
         },
         {
             "coin": "POL",
@@ -24,11 +24,11 @@
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
             "live_pnl": "$0.00",
-            "binance_funding": "-0.101%",
-            "bybit_funding": "0.105%",
-            "binance_entry": 0.38758,
-            "bybit_entry": 0.38359,
-            "initial_funding_gap": "0.206%"
+            "binance_funding": "0.224%",
+            "bybit_funding": "0.284%",
+            "binance_entry": 0.38241,
+            "bybit_entry": 0.38255,
+            "initial_funding_gap": "0.06%"
         }
     ],
     "closed_trades": [
@@ -5145,6 +5145,36 @@
             "bybit_entry": 0.04056,
             "initial_funding_gap": "0.267%",
             "exit_pnl": "$-17.26",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-12.51",
+            "binance_funding": "0.283%",
+            "bybit_funding": "0.097%",
+            "binance_entry": 0.03982,
+            "bybit_entry": 0.03954,
+            "initial_funding_gap": "0.092%",
+            "exit_pnl": "$-12.51",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "POL",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-5.31",
+            "binance_funding": "0.224%",
+            "bybit_funding": "0.284%",
+            "binance_entry": 0.38758,
+            "bybit_entry": 0.38359,
+            "initial_funding_gap": "0.206%",
+            "exit_pnl": "$-5.31",
             "status": "\ud83d\udea8 SL Hit"
         }
     ]
