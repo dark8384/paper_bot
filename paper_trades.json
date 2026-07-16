@@ -1,6 +1,6 @@
 {
     "wallet": {
-        "balance_usdt": 77.28,
+        "balance_usdt": 71.79,
         "initial_capital": 1000.0
     },
     "active_positions": [
@@ -10,25 +10,25 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$0.00",
-            "binance_funding": "-0.209%",
-            "bybit_funding": "0.012%",
+            "live_pnl": "$3.7",
+            "binance_funding": "-0.132%",
+            "bybit_funding": "-0.173%",
             "binance_entry": 0.01909,
             "bybit_entry": 0.01918,
             "initial_funding_gap": "0.22%"
         },
         {
-            "coin": "ESPORTS",
-            "execution_plan": "Long Binance / Short Bybit",
+            "coin": "POL",
+            "execution_plan": "Short Binance / Long Bybit",
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
             "live_pnl": "$0.00",
-            "binance_funding": "-0.151%",
-            "bybit_funding": "0.076%",
-            "binance_entry": 0.04033,
-            "bybit_entry": 0.03964,
-            "initial_funding_gap": "0.227%"
+            "binance_funding": "0.247%",
+            "bybit_funding": "0.002%",
+            "binance_entry": 0.38366,
+            "bybit_entry": 0.38078,
+            "initial_funding_gap": "0.245%"
         }
     ],
     "closed_trades": [
@@ -5761,6 +5761,21 @@
             "initial_funding_gap": "0.21%",
             "exit_pnl": "$9.59",
             "status": "\ud83c\udfaf TP Hit"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-5.49",
+            "binance_funding": "-0.221%",
+            "bybit_funding": "-0.184%",
+            "binance_entry": 0.04033,
+            "bybit_entry": 0.03964,
+            "initial_funding_gap": "0.227%",
+            "exit_pnl": "$-5.49",
+            "status": "\ud83d\udea8 SL Hit"
         }
     ]
 }
