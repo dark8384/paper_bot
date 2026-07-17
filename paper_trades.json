@@ -1,6 +1,6 @@
 {
     "wallet": {
-        "balance_usdt": 55.8,
+        "balance_usdt": 47.42,
         "initial_capital": 1000.0
     },
     "active_positions": [
@@ -10,9 +10,9 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$0.77",
-            "binance_funding": "-0.054%",
-            "bybit_funding": "-0.244%",
+            "live_pnl": "$0.76",
+            "binance_funding": "0.113%",
+            "bybit_funding": "0.178%",
             "binance_entry": 0.01946,
             "bybit_entry": 0.0195,
             "initial_funding_gap": "0.314%"
@@ -23,12 +23,12 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$-1.51",
-            "binance_funding": "0.246%",
-            "bybit_funding": "0.299%",
-            "binance_entry": 0.04005,
-            "bybit_entry": 0.03982,
-            "initial_funding_gap": "0.312%"
+            "live_pnl": "$0.00",
+            "binance_funding": "-0.194%",
+            "bybit_funding": "0.252%",
+            "binance_entry": 0.03959,
+            "bybit_entry": 0.04003,
+            "initial_funding_gap": "0.446%"
         }
     ],
     "closed_trades": [
@@ -5865,6 +5865,21 @@
             "bybit_entry": 0.38673,
             "initial_funding_gap": "0.285%",
             "exit_pnl": "$-15.53",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "ESPORTS",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-8.38",
+            "binance_funding": "-0.194%",
+            "bybit_funding": "0.252%",
+            "binance_entry": 0.04005,
+            "bybit_entry": 0.03982,
+            "initial_funding_gap": "0.312%",
+            "exit_pnl": "$-8.38",
             "status": "\ud83d\udea8 SL Hit"
         }
     ]
