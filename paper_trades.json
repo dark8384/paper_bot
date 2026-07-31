@@ -1,21 +1,21 @@
 {
     "wallet": {
-        "balance_usdt": 187.84,
+        "balance_usdt": 182.98,
         "initial_capital": 1000.0
     },
     "active_positions": [
         {
-            "coin": "DEEP",
-            "execution_plan": "Long Binance / Short Bybit",
+            "coin": "ESPORTS",
+            "execution_plan": "Short Binance / Long Bybit",
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
             "live_pnl": "$0.00",
-            "binance_funding": "-0.066%",
-            "bybit_funding": "0.153%",
-            "binance_entry": 0.01955,
-            "bybit_entry": 0.01937,
-            "initial_funding_gap": "0.22%"
+            "binance_funding": "0.186%",
+            "bybit_funding": "-0.217%",
+            "binance_entry": 0.03964,
+            "bybit_entry": 0.04018,
+            "initial_funding_gap": "0.402%"
         }
     ],
     "closed_trades": [
@@ -8612,6 +8612,21 @@
             "bybit_entry": 0.01928,
             "initial_funding_gap": "0.183%",
             "exit_pnl": "$-8.11",
+            "status": "\ud83d\udea8 SL Hit"
+        },
+        {
+            "coin": "DEEP",
+            "execution_plan": "Long Binance / Short Bybit",
+            "used_margin": "$200.0 USDT",
+            "leverage": "5.0x",
+            "total_size": "$1000.0 USDT",
+            "live_pnl": "$-4.86",
+            "binance_funding": "-0.025%",
+            "bybit_funding": "-0.002%",
+            "binance_entry": 0.01955,
+            "bybit_entry": 0.01937,
+            "initial_funding_gap": "0.22%",
+            "exit_pnl": "$-4.86",
             "status": "\ud83d\udea8 SL Hit"
         }
     ]
