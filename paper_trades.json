@@ -10,9 +10,9 @@
             "used_margin": "$200.0 USDT",
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
-            "live_pnl": "$5.35",
-            "binance_funding": "0.139%",
-            "bybit_funding": "0.213%",
+            "live_pnl": "$6.93",
+            "binance_funding": "-0.178%",
+            "bybit_funding": "-0.095%",
             "binance_entry": 0.01934,
             "bybit_entry": 0.01955,
             "initial_funding_gap": "0.116%"
