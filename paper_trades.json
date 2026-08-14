@@ -11,8 +11,8 @@
             "leverage": "5.0x",
             "total_size": "$1000.0 USDT",
             "live_pnl": "$3.14",
-            "binance_funding": "0.043%",
-            "bybit_funding": "0.131%",
+            "binance_funding": "-0.036%",
+            "bybit_funding": "-0.053%",
             "binance_entry": 0.01916,
             "bybit_entry": 0.01913,
             "initial_funding_gap": "0.487%"
